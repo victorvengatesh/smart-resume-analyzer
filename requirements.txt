@@ -1,4 +1,0 @@
-streamlit
-pymupdf
-docx2txt
-google-generativeai
