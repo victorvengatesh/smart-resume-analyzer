@@ -1,0 +1,6 @@
+{
+  "name": "Smart Resume Analyzer",
+  "description": "An application that uses  API to extract key information from resumes, providing a structured analysis.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
