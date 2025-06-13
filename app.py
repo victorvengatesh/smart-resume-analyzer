@@ -1,29 +1,11 @@
 import streamlit as st
-import requests
-import base64
 import fitz  # PyMuPDF
 import json
-import google.generativeai as genai
 import datetime
+import openai
 
-# --- GitHub Config ---
-GITHUB_USERNAME = "victor"  # your GitHub username
-REPO_NAME = "secrets"       # your repo name
-FILE_PATH = "api_key.txt"   # file inside the repo
-GITHUB_TOKEN = "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"
-
-# --- Load API key from GitHub ---
-def load_api_key_from_github():
-    url = f"https://api.github.com/repos/{GITHUB_USERNAME}/{REPO_NAME}/contents/{FILE_PATH}"
-    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-    response = requests.get(url, headers=headers)
-
-    if response.status_code == 200:
-        content_base64 = response.json()["content"]
-        return base64.b64decode(content_base64).decode("utf-8").strip()
-    else:
-        st.error(f"Failed to load API key. GitHub returned: {response.status_code}")
-        return None
+# --- API Key ---
+openai.api_key = "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"
 
 # --- Extract text from PDF ---
 def extract_text_from_pdf(uploaded_file):
@@ -34,18 +16,17 @@ def extract_text_from_pdf(uploaded_file):
     pdf.close()
     return text
 
-# --- Get response from Gemini API ---
-def get_gemini_response(api_key, resume_text):
-    try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        prompt = f"""
-You are an expert resume analyzer. Analyze this resume text and return a structured JSON with:
+# --- Resume Analysis via GPT (new SDK) ---
+def analyze_resume(resume_text):
+    client = openai.OpenAI()
+
+    prompt = f"""
+You are a smart resume assistant. Analyze the following resume and return a structured JSON with:
 - name
-- contact_information: email, phone, linkedin
+- contact_information (email, phone, linkedin)
 - summary
-- work_experience: list of jobs with job_title, company, duration, responsibilities
-- education: list with degree, institution, graduation_year
+- work_experience (job_title, company, duration, responsibilities)
+- education (degree, institution, graduation_year)
 - skills
 - overall_summary
 - suitability_score (0-100)
@@ -53,31 +34,37 @@ You are an expert resume analyzer. Analyze this resume text and return a structu
 Resume:
 {resume_text}
 
-Respond only with a valid JSON object.
+Respond only with a valid JSON.
 """
-        response = model.generate_content(prompt)
-        cleaned = response.text.strip().replace("```json", "").replace("```", "")
-        return json.loads(cleaned)
-    except Exception as e:
-        st.error(f"Error: {e}")
-        return None
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.3,
+    )
+    content = response.choices[0].message.content
+    return json.loads(content)
 
 # --- Streamlit UI ---
-st.set_page_config(page_title="Resume Analyzer", page_icon="📄")
-st.title("📄 Smart Resume Analyzer (using Gemini + GitHub API key)")
+st.set_page_config(page_title="Smart Resume Analyzer", page_icon="📄")
+st.title("📄 Smart Resume Analyzer")
+st.markdown("Upload a resume in PDF format to receive structured insights.")
 
-uploaded_file = st.file_uploader("Upload your resume PDF", type="pdf")
-if st.button("Analyze"):
+uploaded_file = st.file_uploader("📎 Upload Resume (PDF)", type="pdf")
+
+if st.button("🚀 Analyze Resume"):
     if not uploaded_file:
-        st.error("Please upload a resume.")
+        st.error("Please upload a PDF file.")
     else:
-        api_key = load_api_key_from_github()
-        if api_key:
-            with st.spinner("Analyzing resume..."):
-                resume_text = extract_text_from_pdf(uploaded_file)
-                data = get_gemini_response(api_key, resume_text)
-                if data:
-                    st.success("✅ Resume analyzed successfully!")
-                    st.json(data)
+        with st.spinner("Analyzing resume..."):
+            resume_text = extract_text_from_pdf(uploaded_file)
+            try:
+                result = analyze_resume(resume_text)
+                st.success("✅ Analysis Complete!")
+                st.subheader(f"👤 Candidate: {result.get('name', 'N/A')}")
+                st.json(result)
+            except Exception as e:
+                st.error(f"❌ Failed to analyze resume: {e}")
 
 st.caption(f"© {datetime.datetime.now().year} Victor Vengatesh")
