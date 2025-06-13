@@ -1,0 +1,19 @@
+{
+  "name": "smart-resume-analyzer",
+  "version": "1.0.0",
+  "description": "An application that uses an API to extract key information from resumes, providing a structured analysis.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
