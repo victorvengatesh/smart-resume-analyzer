@@ -1,11 +1,13 @@
 import streamlit as st
 import fitz  # PyMuPDF
 import json
+from openai import OpenAI
 import datetime
-import openai
 
-# --- API Key ---
-openai.api_key = "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"
+# --- Initialize OpenAI client with your API key ---
+client = OpenAI(
+    api_key="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"
+)
 
 # --- Extract text from PDF ---
 def extract_text_from_pdf(uploaded_file):
@@ -16,10 +18,8 @@ def extract_text_from_pdf(uploaded_file):
     pdf.close()
     return text
 
-# --- Resume Analysis via GPT (new SDK) ---
+# --- Resume analysis function ---
 def analyze_resume(resume_text):
-    client = openai.OpenAI()
-
     prompt = f"""
 You are a smart resume assistant. Analyze the following resume and return a structured JSON with:
 - name
@@ -38,13 +38,10 @@ Respond only with a valid JSON.
 """
     response = client.chat.completions.create(
         model="gpt-4",
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
+        messages=[{"role": "user", "content": prompt}],
         temperature=0.3,
     )
-    content = response.choices[0].message.content
-    return json.loads(content)
+    return json.loads(response.choices[0].message.content)
 
 # --- Streamlit UI ---
 st.set_page_config(page_title="Smart Resume Analyzer", page_icon="📄")
