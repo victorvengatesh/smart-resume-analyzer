@@ -1,0 +1,4 @@
+pytesseract
+streamlit
+Pillow
+opencv-python-headless
