@@ -1,6 +1,4 @@
+# requirements.txt
 streamlit
-tesseract-ocr
-libgl1-mesa-glx
-libsm6
-libxext6
-
+google-generativeai
+pymupdf
