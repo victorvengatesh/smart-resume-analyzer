@@ -2,7 +2,7 @@ pytesseract
 streamlit
 Pillow
 opencv-python-headless
-atreamlit
+streamlit
 tesseract-ocr
 libgl1-mesa-glx
 libsm6
