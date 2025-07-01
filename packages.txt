@@ -1,8 +1,3 @@
-pytesseract
-streamlit
-Pillow
-opencv-python-headless
-streamlit
 tesseract-ocr
 libgl1-mesa-glx
 libsm6
