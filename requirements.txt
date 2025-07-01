@@ -2,6 +2,3 @@ streamlit
 pymupdf
 docx2txt
 google-generativeai
-pytesseract
-Pillow
-opencv-python-headless
